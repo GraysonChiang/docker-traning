@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+    nginx:
+        image: nginx
+        ports:
+         - 80:80
+        links: 
+         - fpm
+        volumes: &appvolumes
+         - "./html:/var/www/html:delegated"
+         - "./nginx_conf/:/etc/nginx/conf.d:delegated"
+    fpm:
+        # image: php:7.2-fpm
+        image: grayson:php-mysqli
+        volumes: *appvolumes
+    cli:
+        image: php:7.2-cli
+        command: bash -c "tail -f /dev/null"
+        volumes: *appvolumes
+    mysql:
+        image: mysql:5.7
+        environment: 
+         - MYSQL_ROOT_PASSWORD=magento
+         - MYSQL_DATABASE=magento
+         - MYSQL_USER=magento
+         - MYSQL_PASSWORD=magento
+        links: 
+         - fpm
+        ports:
+         - "3306:3306"
+        # volumes:
+        #  - ./mysql:/var/lib/mysql
